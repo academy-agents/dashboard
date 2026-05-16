@@ -1,0 +1,56 @@
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .ep {
+      fill: none;
+      stroke: url(#eyeGradientDark);
+      stroke-width: 10; /* Increased from 5 */
+      stroke-linecap: round;
+      filter: drop-shadow(0 2px 4px rgba(0,102,255,0.2));
+    }
+    .cz {
+      fill: none;
+      stroke: #005f73;
+      stroke-width: 10; /* Increased from 5 */
+      opacity: 0.8;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+    }
+    .zg {
+      fill: none;
+      stroke: #0a9396;
+      stroke-width: 12; /* Increased from 6 */
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.2;
+    }
+    .zt {
+      fill: none;
+      stroke: #001219;
+      stroke-width: 12; /* Increased from 6 */
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px rgba(0,147,197,0.3));
+      stroke-dasharray: 85 240;
+      stroke-dashoffset: 325;
+      animation: traceZ 2.5s linear infinite;
+    }
+    @keyframes traceZ {
+      0%   { stroke-dashoffset: 325; opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 1; }
+      100% { stroke-dashoffset: -240; opacity: 0; }
+    }
+  </style>
+  <defs>
+    <linearGradient id="eyeGradientDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#005f73" />
+      <stop offset="50%"  stop-color="#0a9396" />
+      <stop offset="100%" stop-color="#003554" />
+    </linearGradient>
+  </defs>
+  <!-- Background is transparent -->
+  <path d="M 100 20 C 172 80, 172 220, 100 280" class="ep" />
+  <path d="M 100 20 C 28 80, 28 220, 100 280"  class="ep" />
+  <circle cx="100" cy="150" r="48" class="cz" />
+  <path d="M 67 117 L 133 117 L 67 183 L 133 183" class="zg" />
+  <path d="M 67 117 L 133 117 L 67 183 L 133 183" class="zt" />
+</svg>

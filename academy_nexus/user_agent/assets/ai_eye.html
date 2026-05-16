@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+    :root {
+        --bg-color: #020508;
+        --mint: #00ffaa;
+        --cyan: #00f2ff;
+        --blue: #0066ff;
+        --z-highlight: #ffffff;
+        --anim-speed: 2.5s;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .logo-svg {
+        width: 320px;
+        height: 480px;
+    }
+
+    /* Vertical Convex Lens (Eyelids with increased curvature) */
+    .eyelid-path {
+        fill: none;
+        stroke: url(#eyeGradient);
+        stroke-width: 5;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 12px rgba(0, 242, 255, 0.4));
+    }
+
+    /* The Eyeball (Circle Zero) */
+    .circle-zero {
+        fill: none;
+        stroke: var(--cyan);
+        stroke-width: 2.5;
+        opacity: 0.85;
+    }
+
+    /* The Z Ghost (Faded trace) */
+    .z-ghost {
+        fill: none;
+        stroke: var(--mint);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.1;
+    }
+
+    /* The Z Tracer (Pulsing Light) */
+    .z-tracer {
+        fill: none;
+        stroke: var(--z-highlight);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0 0 15px var(--cyan));
+
+        /* Sequential drawing animation */
+        stroke-dasharray: 85 240;
+        stroke-dashoffset: 325;
+
+        animation: traceZ var(--anim-speed) linear infinite;
+    }
+
+    @keyframes traceZ {
+        0% { stroke-dashoffset: 325; opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { stroke-dashoffset: -240; opacity: 0; }
+    }
+</style>
+</head>
+<body>
+
+    <svg class="logo-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="eyeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:var(--mint);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:var(--cyan);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:var(--blue);stop-opacity:1" />
+            </linearGradient>
+        </defs>
+
+        <!--
+            WIDENED CONVEX LENS (EYELIDS):
+            Curvature is increased by shifting the control points
+            out to X=172 on the right and X=28 on the left.
+        -->
+        <g id="eyelid-structure">
+            <path d="M 100 20 C 172 80, 172 220, 100 280" class="eyelid-path" />
+            <path d="M 100 20 C 28 80, 28 220, 100 280" class="eyelid-path" />
+        </g>
+
+        <!--
+            EYEBALL (CIRCLE ZERO):
+            Centered at (100, 150) | Radius: 48
+            Diameter is 96 units, sitting completely within the 108 unit
+            wide midpoint of the eyelids.
+        -->
+        <g id="pupil-group">
+            <circle cx="100" cy="150" r="48" class="circle-zero" />
+
+            <!--
+                Z-PUPIL ANIMATION:
+                Calculated to stay inside the radius 48 circle but
+                nestle close to its inner edge.
+                Vertices:
+                Top Left: (67, 117)  | Top Right: (133, 117)
+                Bottom Left: (67, 183) | Bottom Right: (133, 183)
+            -->
+            <path d="M 67 117 L 133 117 L 67 183 L 133 183" class="z-ghost" />
+            <path d="M 67 117 L 133 117 L 67 183 L 133 183" class="z-tracer" />
+        </g>
+    </svg>
+
+</body>
+</html>
