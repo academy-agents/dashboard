@@ -1,5 +1,18 @@
 Known bugs:
 
+
+# Heartbeats don't work
+[Pending]
+The UserAgent treats every message from an agent as a heartbeat,
+but this mechanism appears to be broken now.
+We should switch over to using mailbox/agent liveness info provided
+by the exchange directly.
+
+# Shutdown doesn't work
+[Pending]
+The shutdown button on the agent cards no longer trigger agent shutdown
+
+
 # Log issues
 [Pending]
 Logging issues are being worked out with the switch away from `init_logging()` to the `recommended` loggers from BenC.
