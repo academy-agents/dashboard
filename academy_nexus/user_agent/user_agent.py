@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import logging
 import uuid
+from concurrent.futures import Future
 from typing import Any
 
 from academy.agent import action
@@ -48,14 +50,28 @@ class UserAgent(Agent):
             port=self.port,
             base_url=formatted_base_url,
         )
+        ctx = contextvars.copy_context()
 
         def _shutdown_callback(agent_id: str) -> None:
-            asyncio.run_coroutine_threadsafe(
-                self._agent_manager.get_handle(
+            done: Future[None] = Future()
+
+            def _create_task() -> None:
+                coro = self._agent_manager.get_handle(
                     AgentId(uid=uuid.UUID(agent_id)),
-                ).shutdown(),
-                loop,
-            )
+                ).shutdown()
+                task = loop.create_task(coro, context=ctx)
+                task.add_done_callback(
+                    lambda t: done.set_exception(t.exception())
+                    if t.exception()
+                    else done.set_result(t.result()),
+                )
+
+            loop.call_soon_threadsafe(_create_task)
+            try:
+                done.result()
+            except Exception:
+                # Log and continue
+                logger.exception(f'Agent[{agent_id[:4]} failed to shutdown')
 
         self._dashboard.set_shutdown_callback(_shutdown_callback)
         self._dashboard.start()
