@@ -24,6 +24,7 @@ dependencies = [
     # Academy unreleased changes in ~0.4.1 required for client timeout issue
     "academy-py @ git+https://github.com/academy-agents/academy.git",
     "dotenv",
+    "globus-compute-sdk",
     "tox>=4.34.1",
     "flask>=3.1",
     "psutil"
