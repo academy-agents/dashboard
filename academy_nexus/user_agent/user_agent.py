@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import contextvars
+import enum
 import logging
 import uuid
 from concurrent.futures import Future
@@ -11,6 +12,7 @@ from typing import Any
 
 from academy.agent import action
 from academy.agent import Agent
+from academy.agent import loop
 from academy.identifier import AgentId
 
 from academy_nexus.user_agent.dashboard import Dashboard
@@ -21,6 +23,14 @@ from academy_nexus.user_agent.message import Stats
 from academy_nexus.user_agent.message import UserPrompt
 
 logger = logging.getLogger(__name__)
+
+
+class AgentStatus(enum.Enum):
+    """Agent status."""
+
+    CONNECTED = enum.auto()
+    DISCONNECTED = enum.auto()
+    USER_CANCELLED = enum.auto()
 
 
 class UserAgent(Agent):
@@ -36,6 +46,7 @@ class UserAgent(Agent):
         self.base_url = base_url
         self.host = host
         self.port = port
+        self._connected_agents: dict[str, dict[Any, Any]] = {}
         logger.info(f'Starting user agent on Port: {port}')
 
     async def agent_on_startup(self) -> None:
@@ -91,6 +102,7 @@ class UserAgent(Agent):
             self._dashboard.push_stats(sender, message)
         elif isinstance(message, Registration):
             self._dashboard.register_agent(sender, message)
+            self._connected_agents[sender] = {'status': AgentStatus.CONNECTED}
 
     @action
     async def prompt_user(
@@ -106,6 +118,17 @@ class UserAgent(Agent):
             self._dashboard.wait_for_response,
             prompt_id,
         )
+
+    @loop
+    async def check_liveness(self, shutdown: asyncio.Event) -> None:
+        """Check agent liveness."""
+        while not shutdown.is_set():
+            await asyncio.sleep(10)
+            for agent in self._connected_agents:
+                logger.info(f'Agent: {agent}')
+                # agent = AgentId(uid=uuid.UUID(agent))
+                # x = await agent.agent_stats()
+                # logger.info(f'Agent stats: {x}')
 
     @action
     async def get_messages(self) -> dict[str, Any]:

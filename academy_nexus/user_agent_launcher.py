@@ -5,17 +5,23 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import os
 import pickle
 from pathlib import Path
 from uuid import UUID
 
 import aiohttp
+from academy.exchange.cloud.client import DEFAULT_EXCHANGE_URL
 from academy.exchange.cloud.client import HttpExchangeFactory
 from academy.exchange.transport import AgentRegistration
 from academy.runtime import Runtime
 from academy.runtime import RuntimeConfig
+from dotenv import find_dotenv
+from dotenv import load_dotenv
 
 from academy_nexus.user_agent.user_agent import UserAgent
+
+load_dotenv(find_dotenv('agents.env'))
 
 
 def load_registation(registration_path: Path) -> dict[str, UUID | AgentRegistration]:
@@ -58,6 +64,7 @@ async def launch(port: int, registration_file: Path, log_level: str = 'WARNING')
     # Todo: Logging is messed up when no manager is available to handle LogConfig objects
 
     factory = HttpExchangeFactory(
+        url=os.environ.get('AGENT_EXCHANGE_URL', DEFAULT_EXCHANGE_URL),
         client_timeout=aiohttp.ClientTimeout(total=None, sock_connect=30),
     )
 

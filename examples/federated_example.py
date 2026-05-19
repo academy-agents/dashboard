@@ -13,12 +13,17 @@ from concurrent.futures import ProcessPoolExecutor
 from uuid import UUID
 
 from academy.exchange.cloud import HttpExchangeFactory
+from academy.exchange.cloud.client import DEFAULT_EXCHANGE_URL
 from academy.identifier import AgentId
 from academy.manager import Manager
+from dotenv import find_dotenv
+from dotenv import load_dotenv
 from globus_compute_sdk import Executor as GlobusExecutor
 
 from academy_nexus.agents import Sleeper
 from academy_nexus.agents import Spinner
+
+load_dotenv(find_dotenv('.agents.env'))
 
 
 async def main(user_agent_id: UUID) -> None:
@@ -42,7 +47,9 @@ async def main(user_agent_id: UUID) -> None:
     }
 
     async with await Manager.from_exchange_factory(
-        factory=HttpExchangeFactory(),
+        factory=HttpExchangeFactory(
+            url=os.environ.get('ACADEMY_EXCHANGE_URL', DEFAULT_EXCHANGE_URL),
+        ),
         executors=executors,
     ) as manager:
         # 1. Launch UserAgent first so its handle can be passed to the worker.

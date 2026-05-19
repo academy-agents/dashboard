@@ -24,17 +24,25 @@ import uuid
 from concurrent.futures import ProcessPoolExecutor
 
 from academy.exchange.cloud import HttpExchangeFactory
+from academy.exchange.cloud.client import DEFAULT_EXCHANGE_URL
 from academy.identifier import AgentId
 from academy.manager import Manager
+from dotenv import find_dotenv
+from flask.cli import load_dotenv
 
 from academy_nexus.agents import Sleeper
 from academy_nexus.agents import Spinner
+
+load_dotenv(find_dotenv('.agents.env'))
 
 
 async def main(user_agent_id: str) -> None:
     """Launch MonitoredAgents."""
     async with await Manager.from_exchange_factory(
-        factory=HttpExchangeFactory(),
+        factory=HttpExchangeFactory(
+            url=os.environ.get('ACADEMY_EXCHANGE_URL', DEFAULT_EXCHANGE_URL),
+            auth_method='globus',
+        ),
         executors=ProcessPoolExecutor(max_workers=8),
     ) as manager:
         # 1. Get a handle to a running UserAgent

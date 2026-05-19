@@ -9,8 +9,9 @@ We should switch over to using mailbox/agent liveness info provided
 by the exchange directly.
 
 # Shutdown doesn't work
-[Pending]
+[Fixed]
 The shutdown button on the agent cards no longer trigger agent shutdown
+Fixed in git rev: 4c3525b57ea630fefccddcd9caf1cd8758f9bfbd
 
 
 # Log issues
