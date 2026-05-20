@@ -10,12 +10,12 @@ import pytest_asyncio
 from academy.exchange import LocalExchangeFactory
 from academy.manager import Manager
 
-from academy_nexus.user_agent import UserAgent
-from academy_nexus.user_agent.dashboard import Dashboard
-from academy_nexus.user_agent.message import Log
-from academy_nexus.user_agent.message import Registration
-from academy_nexus.user_agent.message import Stats
-from academy_nexus.user_agent.message import UserPrompt
+from academy_dashboard.user_agent import UserAgent
+from academy_dashboard.user_agent.dashboard import Dashboard
+from academy_dashboard.user_agent.message import Log
+from academy_dashboard.user_agent.message import Registration
+from academy_dashboard.user_agent.message import Stats
+from academy_dashboard.user_agent.message import UserPrompt
 
 
 @pytest_asyncio.fixture
@@ -35,7 +35,7 @@ async def patched_user_agent(
     """UserAgent fixture with Dashboard patched."""
     mock_dashboard = mock.Mock(spec=Dashboard)
     with patch(
-        'academy_nexus.user_agent.user_agent.Dashboard',
+        'academy_dashboard.user_agent.user_agent.Dashboard',
         return_value=mock_dashboard,
     ):
         user_agent_handle = await manager.launch(UserAgent)

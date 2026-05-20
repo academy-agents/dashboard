@@ -1,9 +1,9 @@
-# Academy-Nexus
+# Academy-Dashboard
 
 **Observability and Oversight for Academy Agents**
 
 As agents act autonomously, the ability to observe what they are doing and intervene
-when appropriate becomes a critical capability. `academy-nexus` addresses these
+when appropriate becomes a critical capability. `academy-dashboard` addresses these
 challenges in agentic deployments through the following extensions for `Academy`:
 
 * `UserAgent`: Specialized Academy agents that 1. accepts information from MonitoredAgents \
@@ -25,7 +25,7 @@ There are two supported modes for using starting a `UserAgent`:
 
 #### `Hosted UserAgent`
 
->>   Go to [nexus.academy-agents.org](https://nexus.academy-agents.org/)
+>>   Go to [dashboard.academy-agents.org](https://dashboard.academy-agents.org/)
 
     1) Login with Globus Auth \
     2) Click the `[+]` button to launch a new `UserAgent` \
@@ -39,7 +39,7 @@ Launch locally with: `user-agent-launcher`,
 :>user-agent-launcher
 User Agent UUID >>>>
      a9337401-3d22-4205-923a-0040bb8d3a7b
- * Serving Flask app 'academy_nexus.user_agent.dashboard'
+ * Serving Flask app 'academy_dashboard.user_agent.dashboard'
  * Debug mode: off
 
 ```
