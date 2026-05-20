@@ -32,8 +32,8 @@ from academy.handle import Handle
 from academy.identifier import AgentId
 from academy.manager import Manager
 
-from academy_nexus import MonitoredAgent
-from academy_nexus import UserAgent
+from academy_dashboard import MonitoredAgent
+from academy_dashboard import UserAgent
 
 
 class Sleeper(MonitoredAgent):

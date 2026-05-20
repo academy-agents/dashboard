@@ -13,12 +13,12 @@ from academy.agent import action
 from academy.agent import Agent
 from academy.identifier import AgentId
 
-from academy_nexus.user_agent.dashboard import Dashboard
-from academy_nexus.user_agent.message import Log
-from academy_nexus.user_agent.message import Message
-from academy_nexus.user_agent.message import Registration
-from academy_nexus.user_agent.message import Stats
-from academy_nexus.user_agent.message import UserPrompt
+from academy_dashboard.user_agent.dashboard import Dashboard
+from academy_dashboard.user_agent.message import Log
+from academy_dashboard.user_agent.message import Message
+from academy_dashboard.user_agent.message import Registration
+from academy_dashboard.user_agent.message import Stats
+from academy_dashboard.user_agent.message import UserPrompt
 
 logger = logging.getLogger(__name__)
 

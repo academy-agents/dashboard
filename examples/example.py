@@ -27,8 +27,8 @@ from academy.exchange.cloud import HttpExchangeFactory
 from academy.identifier import AgentId
 from academy.manager import Manager
 
-from academy_nexus.agents import Sleeper
-from academy_nexus.agents import Spinner
+from academy_dashboard.agents import Sleeper
+from academy_dashboard.agents import Spinner
 
 
 async def main(user_agent_id: str) -> None:

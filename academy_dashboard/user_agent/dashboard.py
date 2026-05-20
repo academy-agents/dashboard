@@ -16,11 +16,11 @@ from flask import request
 from flask import Response
 from flask import send_from_directory
 
-from academy_nexus.user_agent.message import Log
-from academy_nexus.user_agent.message import Registration
-from academy_nexus.user_agent.message import Stats
-from academy_nexus.user_agent.message import UserPrompt
-from academy_nexus.user_agent.web_elements import _HTML
+from academy_dashboard.user_agent.message import Log
+from academy_dashboard.user_agent.message import Registration
+from academy_dashboard.user_agent.message import Stats
+from academy_dashboard.user_agent.message import UserPrompt
+from academy_dashboard.user_agent.web_elements import _HTML
 
 _ASSETS_DIR = _os.path.join(_os.path.dirname(__file__), 'assets')
 

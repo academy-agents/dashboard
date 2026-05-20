@@ -3,7 +3,7 @@ requires = ["setuptools>=64.0", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "academy-nexus"
+name = "academy-dashboard"
 version = "0.1.0"
 authors = [
     {name = "ModCon BASE Core Agentic Frameworks Team"},
@@ -60,7 +60,7 @@ docs = [
 ]
 
 [project.scripts]
-user-agent-launcher = "academy_nexus.user_agent_launcher:main"
+user-agent-launcher = "academy_dashboard.user_agent_launcher:main"
 
 [tool.codespell]
 skip = """

@@ -15,7 +15,7 @@ from academy.exchange.transport import AgentRegistration
 from academy.runtime import Runtime
 from academy.runtime import RuntimeConfig
 
-from academy_nexus.user_agent.user_agent import UserAgent
+from academy_dashboard.user_agent.user_agent import UserAgent
 
 
 def load_registation(registration_path: Path) -> dict[str, UUID | AgentRegistration]:

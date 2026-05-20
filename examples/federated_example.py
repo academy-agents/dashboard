@@ -17,8 +17,8 @@ from academy.identifier import AgentId
 from academy.manager import Manager
 from globus_compute_sdk import Executor as GlobusExecutor
 
-from academy_nexus.agents import Sleeper
-from academy_nexus.agents import Spinner
+from academy_dashboard.agents import Sleeper
+from academy_dashboard.agents import Spinner
 
 
 async def main(user_agent_id: UUID) -> None:

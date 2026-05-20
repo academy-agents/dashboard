@@ -17,12 +17,12 @@ from academy.agent import action
 from academy.agent import Agent
 from academy.handle import Handle
 
-from academy_nexus.user_agent.message import Log
-from academy_nexus.user_agent.message import Message
-from academy_nexus.user_agent.message import Registration
-from academy_nexus.user_agent.message import Stats
-from academy_nexus.user_agent.message import UserPrompt
-from academy_nexus.user_agent.user_agent import UserAgent
+from academy_dashboard.user_agent.message import Log
+from academy_dashboard.user_agent.message import Message
+from academy_dashboard.user_agent.message import Registration
+from academy_dashboard.user_agent.message import Stats
+from academy_dashboard.user_agent.message import UserPrompt
+from academy_dashboard.user_agent.user_agent import UserAgent
 
 
 class _UserAgentLogHandler(logging.Handler):
