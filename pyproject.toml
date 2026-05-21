@@ -21,8 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "requests",
-    # Academy unreleased changes in ~0.4.1 required for client timeout issue
-    "academy-py @ git+https://github.com/academy-agents/academy.git",
+    "academy-py>=0.5.0",
     "dotenv",
     "globus-compute-sdk",
     "tox>=4.34.1",
