@@ -61,8 +61,57 @@ options:
 
 ## Using the `MonitoredAgent`
 
-```python
-import os
+> NOTE: Use `export USER_AGENT_ID=<USER_AGENT_UUID_FROM_ABOVE_STEPS>` for examples in the [examples](https://github.com/academy-agents/dashboard/tree/main/examples) directory.
 
-USER_AGENT_ID=os.environ('USER_AGENT_UUID')
+> NOTE: This document is in development.
+
+> NOTE: The example below is trimmed for brevity. Refer [examples](https://github.com/academy-agents/dashboard/tree/main/examples) for complete code.
+
+```python
+from academy_dashboard import MonitoredAgent
+from academy_dashboard import UserAgent
+
+
+class Sleeper(MonitoredAgent):
+
+    def __init__(self, user_agent_handle: Handle[UserAgent]) -> None:
+        super().__init__(user_agent_handle=user_agent_handle)
+        print('Spinner init done')
+
+    @loop
+    async def cycle(self, shutdown: asyncio.Event) -> None:
+        """Log and sleep in loop."""
+        counter = 0
+        while not shutdown.is_set():
+            await asyncio.sleep(2)
+            logging.info('Sleeper iteration %d', counter)
+            counter += 1
+        logging.info('Sleeper exiting!!!! ')
+
+
+async def main(user_agent_id: UUID) -> None:
+    async with await Manager.from_exchange_factory(
+        factory=HttpExchangeFactory(),
+        executors=ProcessPoolExecutor(max_workers=2),
+    ) as manager:
+
+        # 1. Get Handle to UserAgent
+        agent_id = AgentId(uid=user_agent_id, name='UserAgent')
+        user_agent_handle = manager.get_handle(agent_id)
+
+        # 2. Launch a single agent:
+        sleeper = await manager.launch(
+            Sleeper,
+            kwargs={'user_agent_handle': user_agent_handle},  # <-- Pass handle to UserAgent
+        )
+
+        # 3. Wait for the sleeper agent, which will go on until cancelled
+        #    with a ctrl+c
+        await manager.wait([sleeper])
+        logging.info('All done!')
+
+
+if __name__ == '__main__':
+    user_agent_id = os.environ['USER_AGENT_ID']
+    raise SystemExit(asyncio.run(main(UUID(user_agent_id))))
 ```
