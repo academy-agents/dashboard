@@ -26,13 +26,14 @@ For small bugs, feel free to open a pull request directly.
 For larger bugs or enhancements, please open an issue first — having an associated issue makes it easier to track changes and discuss proposals before you get started.
 
 1. Fork the repo and create a new branch from `main`.
+   - External contributors do not have direct push access to `academy-agents/dashboard` — all changes must come through a fork, even small ones.
    - We suggest naming your branch `issue-##` if your pull request is addressing an open issue.
 2. Set up your development environment (see **Development Setup** below).
 3. Make your changes.
    - If you've added code that should be tested, add tests.
    - If you've changed APIs, update the documentation.
 4. Ensure the test suite passes and your code lints.
-5. Open the pull request!
+5. Open the pull request from your fork branch targeting `main` on this repo.
 
 ## Development Setup
 
