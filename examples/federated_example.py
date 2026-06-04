@@ -75,7 +75,7 @@ async def main(user_agent_id: UUID) -> None:
 
         # 4. Shutdown agents and exit
         logging.info('All done!')
-        [handle.shutdown() for handle in handles]
+        [await handle.shutdown() for handle in handles]
 
 
 if __name__ == '__main__':

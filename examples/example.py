@@ -60,7 +60,7 @@ async def main(user_agent_id: str) -> None:
 
         # 3. Trigger work on the worker — log messages are forwarded automatically.
         await spinner.run(iterations=5)
-        [handle.shutdown() for handle in handles]
+        [await handle.shutdown() for handle in handles]
         logging.info('All done!')
 
 
