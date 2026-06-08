@@ -11,8 +11,11 @@ from typing import Any
 
 from academy.agent import action
 from academy.agent import Agent
+from academy.agent import loop
+from academy.exchange.transport import MailboxStatus
 from academy.identifier import AgentId
 
+from academy_dashboard.user_agent.dashboard import AgentStatus
 from academy_dashboard.user_agent.dashboard import Dashboard
 from academy_dashboard.user_agent.message import Log
 from academy_dashboard.user_agent.message import Message
@@ -31,11 +34,13 @@ class UserAgent(Agent):
         host: str = '0.0.0.0',
         port: int = 8000,
         base_url: str = '',
+        liveness_interval: int = 30,
     ) -> None:
         super().__init__()
         self.base_url = base_url
         self.host = host
         self.port = port
+        self.liveness_interval = liveness_interval
         logger.info(f'Starting user agent on Port: {port}')
 
     async def agent_on_startup(self) -> None:
@@ -106,6 +111,45 @@ class UserAgent(Agent):
             self._dashboard.wait_for_response,
             prompt_id,
         )
+
+    @loop
+    async def check_liveness(self, shutdown: asyncio.Event) -> None:
+        """Poll agent liveness."""
+        while not shutdown.is_set():
+            peer_ids = list(self._dashboard._agents)
+
+            prompt_counts: dict[str, int] = {}
+            for prompt in self._dashboard._prompts:
+                prompt_counts[prompt['agent_id']] = (
+                    prompt_counts.get(prompt['agent_id'], 0) + 1
+                )
+
+            for peer_id in peer_ids:
+                try:
+                    mailbox_status = await self.agent_exchange_client.status(
+                        AgentId(uid=uuid.UUID(peer_id)),
+                    )
+                except Exception:
+                    logger.exception('Failed to get status for agent %s', peer_id[:8])
+                    continue
+
+                agent_data = self._dashboard._agents[peer_id]
+
+                if mailbox_status == MailboxStatus.TERMINATED:
+                    new_status = AgentStatus.TERMINATED
+                elif mailbox_status == MailboxStatus.ACTIVE:
+                    new_status = (
+                        AgentStatus.WAITING
+                        if prompt_counts.get(peer_id)
+                        else AgentStatus.ACTIVE
+                    )
+                else:
+                    new_status = AgentStatus.MISSING
+
+                if agent_data.get('status') != new_status.value:
+                    self._dashboard.push_status(peer_id, new_status)
+
+            await asyncio.sleep(self.liveness_interval)
 
     @action
     async def get_messages(self) -> dict[str, Any]:
