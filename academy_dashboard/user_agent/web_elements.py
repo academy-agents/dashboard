@@ -247,11 +247,11 @@ _HTML = r"""<!DOCTYPE html>
     .agent-name { font-size:.92rem; letter-spacing:.14em; text-transform:uppercase; }
     .agent-sub  { font-size:.58rem; color:rgba(0,229,255,.28); letter-spacing:.15em; margin-top:3px; }
     .badge      { display:flex; align-items:center; gap:5px; font-size:.62rem; letter-spacing:.15em; }
-    .sdot {
-      width:7px; height:7px; border-radius:50%;
-      background:var(--green); box-shadow:0 0 8px var(--green);
-      animation:pulse 2s ease-in-out infinite;
-    }
+    .sdot            { width:7px; height:7px; border-radius:50%; }
+    .sdot.active     { background:var(--green);  box-shadow:0 0 8px var(--green);  animation:pulse 2s ease-in-out infinite; }
+    .sdot.waiting    { background:var(--yellow); box-shadow:0 0 8px var(--yellow); animation:pulse 2s ease-in-out infinite; }
+    .sdot.terminated { background:var(--red);    box-shadow:0 0 6px var(--red);    animation:none; }
+    .sdot.missing    { background:var(--yellow); box-shadow:0 0 5px var(--yellow); animation:none; opacity:.45; }
     .power-btn {
       background:transparent;
       border:1px solid rgba(255,23,68,.35);
@@ -649,6 +649,18 @@ function switchTab(btn) {
 }
 
 // ── Agent cards ───────────────────────────────────────────────────────────
+const _STATUS_MAP = {
+  'ACTIVE':     { cls: 'active',     color: 'var(--green)',  label: 'ACTIVE'     },
+  'WAITING':    { cls: 'waiting',    color: 'var(--yellow)', label: 'WAITING'    },
+  'MISSING':    { cls: 'missing',    color: 'var(--yellow)', label: 'MISSING'    },
+  'TERMINATED': { cls: 'terminated', color: 'var(--red)',    label: 'TERMINATED' },
+};
+
+function buildStatusBadge(status) {
+  const s = _STATUS_MAP[status] || _STATUS_MAP['ACTIVE'];
+  return `<div class="badge"><div class="sdot ${s.cls}"></div><span style="color:${s.color};font-size:.62rem;letter-spacing:.15em">${s.label}</span></div>`;
+}
+
 function upsertCard(name, data) {
   document.getElementById('empty-agents')?.remove();
 
@@ -672,7 +684,7 @@ function upsertCard(name, data) {
         <div class="agent-sub">${x(String(name).slice(0, 22))}</div>
       </div>
       <div style="display:flex;align-items:center">
-        <div class="badge"><div class="sdot"></div><span style="color:var(--green);font-size:.62rem;letter-spacing:.15em">ONLINE</span></div>
+        ${buildStatusBadge(d.status)}
         <button class="power-btn" onclick="shutdownAgent('${x(name)}')" title="Shutdown agent">⏻</button>
       </div>
     </div>
@@ -1017,6 +1029,13 @@ es.addEventListener('registration', e => {
   upsertCard(d.agent, agents[d.agent]);
   _upsertMapMarker(d);
   _drawAllConnections();
+  eventN++; updateHud();
+});
+
+es.addEventListener('status', e => {
+  const d = JSON.parse(e.data);
+  Object.assign(agents[d.agent] || (agents[d.agent] = {}), d);
+  upsertCard(d.agent, agents[d.agent]);
   eventN++; updateHud();
 });
 

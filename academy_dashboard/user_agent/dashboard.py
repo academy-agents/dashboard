@@ -9,6 +9,7 @@ import os as _os
 import queue
 import threading
 import time
+from enum import Enum
 from typing import Any
 
 from flask import Flask
@@ -27,6 +28,15 @@ _ASSETS_DIR = _os.path.join(_os.path.dirname(__file__), 'assets')
 logger = logging.getLogger(__name__)
 
 _LOG_BUFFER_SIZE = 2000
+
+
+class AgentStatus(Enum):
+    """Agent Statuses."""
+
+    MISSING = 'MISSING'
+    ACTIVE = 'ACTIVE'
+    WAITING = 'WAITING'
+    TERMINATED = 'TERMINATED'
 
 
 # ---------------------------------------------------------------------------
@@ -144,6 +154,12 @@ class Dashboard:
             if len(self._logs) > _LOG_BUFFER_SIZE:
                 self._logs = self._logs[-_LOG_BUFFER_SIZE:]
         self._broadcast('log', entry)
+
+    def push_status(self, sender: str, status: AgentStatus) -> None:
+        """Update an agent's status and broadcast it to subscribers."""
+        with self._lock:
+            self._agents.setdefault(sender, {})['status'] = status.value
+        self._broadcast('status', {'agent': sender, 'status': status.value})
 
     def push_stats(self, sender: str, stats: Stats) -> None:
         """Update an agent's resource stats and broadcast to subscribers."""
