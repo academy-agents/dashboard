@@ -17,6 +17,7 @@ _HTML = r"""<!DOCTYPE html>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     :root {
+      font-size: 18px;
       --cyan:    #00e5ff;
       --blue:    #0066ff;
       --green:   #00ff88;
@@ -162,7 +163,7 @@ _HTML = r"""<!DOCTYPE html>
       text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,102,255,.6);
       white-space:nowrap; flex-shrink:0; user-select:none;
     }
-    .logo svg { animation: hexSpin 14s linear infinite; flex-shrink:0; }
+    .logo img { flex-shrink:0; width:36px; height:36px; object-fit:contain; }
     @keyframes hexSpin { to { transform:rotate(360deg); } }
 
     /* Tabs */
@@ -478,13 +479,7 @@ _HTML = r"""<!DOCTYPE html>
   <!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
   <header>
     <div class="logo">
-      <svg width="27" height="27" viewBox="0 0 28 28" fill="none">
-        <polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="#00e5ff" stroke-width="1.4" fill="none"/>
-        <polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="#00e5ff" stroke-width=".6" fill="none" opacity=".42"/>
-        <circle cx="14" cy="14" r="2.4" fill="#00e5ff" opacity=".92"/>
-        <line x1="14" y1="7" x2="14" y2="2"  stroke="#00e5ff" stroke-width=".6" opacity=".45"/>
-        <line x1="14" y1="21" x2="14" y2="26" stroke="#00e5ff" stroke-width=".6" opacity=".45"/>
-      </svg>
+      <img src="__BASE_URL__/assets/modcon_logo.png" alt="logo">
       AGENT MONITOR
     </div>
 
