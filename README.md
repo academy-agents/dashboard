@@ -1,7 +1,6 @@
 # Academy-Dashboard
 
-<img src="academy_dashboard/user_agent/assets/modcon_logo.png" alt="ModCon" height="120">
-<img src="academy_dashboard/user_agent/assets/CAF.png" alt="CAF" height="120">
+<img src="academy_dashboard/user_agent/assets/modcon_logo.png" alt="ModCon" height="120"> <img src="academy_dashboard/user_agent/assets/CAF.png" alt="CAF" height="120">
 
 
 **Observability and Oversight for Academy Agents**
