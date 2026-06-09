@@ -18,7 +18,8 @@ repos:
     rev: v2.4.2
     hooks:
       - id: codespell
-        exclude: ".svg$"
+        exclude: '\.svg$'
+        args: ["--ignore-words-list", "caf,modcon"]
   - repo: 'https://github.com/astral-sh/ruff-pre-commit'
     rev: v0.14.11
     hooks:

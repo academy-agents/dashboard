@@ -62,6 +62,7 @@ docs = [
 user-agent-launcher = "academy_dashboard.user_agent_launcher:main"
 
 [tool.codespell]
+ignore-words = ".codespell-ignore"
 skip = """
 .git,
 .github,
@@ -69,7 +70,8 @@ __pycache__,
 build,
 dist,
 .*egg-info,
-*.svg
+*.svg,
+.codespell-ignore
 """
 
 [tool.coverage.run]
