@@ -8,6 +8,7 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-added-large-files
+        args: ['--maxkb=1000']
       - id: check-docstring-first
       - id: check-json
       - id: check-yaml
@@ -17,7 +18,8 @@ repos:
     rev: v2.4.2
     hooks:
       - id: codespell
-        exclude: ".svg$"
+        exclude: '\.svg$'
+        args: ["--ignore-words-list", "caf,modcon"]
   - repo: 'https://github.com/astral-sh/ruff-pre-commit'
     rev: v0.14.11
     hooks:
