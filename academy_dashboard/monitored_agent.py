@@ -17,6 +17,7 @@ from academy.agent import action
 from academy.agent import Agent
 from academy.handle import Handle
 
+from academy_dashboard.agent_card import generate_agent_card
 from academy_dashboard.user_agent.message import Log
 from academy_dashboard.user_agent.message import Message
 from academy_dashboard.user_agent.message import Registration
@@ -168,6 +169,7 @@ class MonitoredAgent(Agent):
 
     async def agent_registration(self) -> None:
         """Send registration message with hardware info and geolocation."""
+        agent_card = generate_agent_card(type(self))
         intro = Registration(
             agent_name=self.agent_name,
             agent_id=self._agent_uid_str,
@@ -178,6 +180,7 @@ class MonitoredAgent(Agent):
             python_version=platform.python_version(),
             os=platform.system(),
             geolocation=await self.get_geolocation(),
+            agent_card=agent_card,
         )
         await self._send_message(intro)
 

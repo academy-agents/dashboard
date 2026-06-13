@@ -23,6 +23,7 @@ class Registration:
     arch: str
     python_version: str
     geolocation: dict[str, Any]
+    agent_card: dict[str, Any] | None = None
 
 
 @dataclass
