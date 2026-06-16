@@ -227,6 +227,7 @@ _HTML = r"""<!DOCTYPE html>
       backdrop-filter:blur(4px);
       animation:cardIn .35s ease-out;
       transition:border-color .4s, box-shadow .4s;
+      cursor:pointer;
     }
     .agent-card.live {
       border-color:rgba(0,229,255,.44);
@@ -684,12 +685,13 @@ function upsertCard(name, data) {
         <div class="agent-sub">${x(String(name).slice(0, 22))}</div>
       </div>
       <div style="display:flex;align-items:center">
-        ${buildStatusBadge(d.status)}
-        <button class="power-btn" onclick="shutdownAgent('${x(name)}')" title="Shutdown agent">⏻</button>
+        <div class="badge"><div class="sdot"></div><span style="color:var(--green);font-size:.62rem;letter-spacing:.15em">ONLINE</span></div>
+        <button class="power-btn" onclick="event.stopPropagation();shutdownAgent('${x(name)}')" title="Shutdown agent">⏻</button>
       </div>
     </div>
     ${hasStats ? buildStats(d) : '<div class="no-stats">AWAITING STATS...</div>'}
   `;
+  card.onclick = () => { window.location = '__BASE_URL__/agent/' + encodeURIComponent(name); };
 }
 
 function buildStats(d) {
@@ -1032,13 +1034,6 @@ es.addEventListener('registration', e => {
   eventN++; updateHud();
 });
 
-es.addEventListener('status', e => {
-  const d = JSON.parse(e.data);
-  Object.assign(agents[d.agent] || (agents[d.agent] = {}), d);
-  upsertCard(d.agent, agents[d.agent]);
-  eventN++; updateHud();
-});
-
 // Swap tile layer when theme is toggled
 const _origToggleTheme = toggleTheme;
 toggleTheme = function () {
@@ -1067,3 +1062,171 @@ switchTab = function (btn) {
 </body>
 </html>
 """
+
+_DETAIL_HTML = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AGENT DETAIL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan:#00e5ff; --green:#00ff88; --red:#ff1744; --yellow:#ffdd00;
+      --bg:#000810; --card-bg:rgba(0,14,38,0.88); --border:rgba(0,229,255,0.32); --dim:rgba(0,229,255,0.52);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Share Tech Mono','Courier New',monospace; background:var(--bg); color:var(--cyan); min-height:100vh; padding:28px 36px 72px; }
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:linear-gradient(rgba(0,100,255,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(0,100,255,.065) 1px,transparent 1px);
+      background-size:48px 48px; animation:gridDrift 28s linear infinite;
+    }
+    @keyframes gridDrift { to { background-position:48px 48px; } }
+    .page { position:relative; z-index:10; max-width:960px; margin:0 auto; }
+    a.back { display:inline-flex; align-items:center; gap:8px; font-size:.7rem; letter-spacing:.28em; color:var(--dim); text-decoration:none; margin-bottom:30px; transition:color .18s; }
+    a.back:hover { color:var(--cyan); }
+    h1 { font-size:1.3rem; letter-spacing:.2em; text-transform:uppercase; text-shadow:0 0 18px var(--cyan); margin-bottom:5px; }
+    .sub { font-size:.6rem; color:rgba(0,229,255,.32); letter-spacing:.15em; margin-bottom:38px; }
+    .section { margin-bottom:38px; }
+    .sh { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+    .sh-title { font-size:.66rem; letter-spacing:.45em; text-transform:uppercase; color:var(--dim); white-space:nowrap; }
+    .sh-line { flex:1; height:1px; background:linear-gradient(to right,var(--border),transparent); }
+    table { width:100%; border-collapse:collapse; font-size:.75rem; }
+    th { text-align:left; color:rgba(0,229,255,.36); letter-spacing:.2em; font-size:.62rem; padding:7px 12px; border-bottom:1px solid rgba(0,229,255,.1); font-weight:normal; }
+    td { padding:9px 12px; border-bottom:1px solid rgba(0,229,255,.06); color:rgba(185,220,255,.85); vertical-align:top; }
+    #hw-table td:first-child { color:var(--dim); white-space:nowrap; width:130px; }
+    .tag { display:inline-block; padding:2px 8px; font-size:.58rem; letter-spacing:.15em; border:1px solid rgba(0,229,255,.28); color:var(--dim); margin:1px 2px 1px 0; }
+    .param-block { font-size:.65rem; }
+    .param-name { color:var(--cyan); }
+    .param-type { color:rgba(0,229,255,.44); }
+    .no-data { color:rgba(0,229,255,.24); font-size:.72rem; letter-spacing:.2em; padding:18px 0; }
+    .communicates { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; margin-bottom:22px; }
+    .comm-tag { padding:4px 14px; border:1px solid rgba(0,229,255,.3); font-size:.65rem; letter-spacing:.15em; color:var(--cyan); }
+    td.desc { white-space:pre-line; max-width:300px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+    .topbar a.back { margin-bottom:0; }
+    .btn-theme { background:transparent; border:1px solid rgba(0,229,255,.28); color:var(--dim); font-family:inherit; font-size:.78rem; padding:4px 10px; cursor:pointer; transition:all .18s; }
+    .btn-theme:hover { border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,.05); }
+    [data-theme="light"] { --cyan:#0055cc; --green:#007740; --red:#cc0022; --yellow:#b87800; --bg:#eef2f7; --border:rgba(0,80,200,0.28); --dim:rgba(0,50,140,0.58); }
+    [data-theme="light"] body { background:var(--bg); color:var(--cyan); }
+    [data-theme="light"] body::before { background-image:linear-gradient(rgba(0,80,200,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,80,200,.055) 1px,transparent 1px); }
+    [data-theme="light"] th { color:rgba(0,50,140,.38); border-bottom-color:rgba(0,80,200,.12); }
+    [data-theme="light"] td { color:rgba(20,40,90,.82); border-bottom-color:rgba(0,80,200,.07); }
+    [data-theme="light"] #hw-table td:first-child { color:var(--dim); }
+    [data-theme="light"] .param-type { color:rgba(0,50,140,.45); }
+    [data-theme="light"] .no-data { color:rgba(0,80,200,.25); }
+    [data-theme="light"] .btn-theme { border-color:rgba(0,80,200,.28); color:var(--dim); }
+    [data-theme="light"] .btn-theme:hover { border-color:var(--cyan); color:var(--cyan); background:rgba(0,80,200,.05); }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a href="__BASE_URL__/" class="back">← DASHBOARD</a>
+    <button class="btn-theme" id="theme-btn" onclick="toggleTheme()">◐</button>
+  </div>
+  <h1 id="agent-name">LOADING...</h1>
+  <div class="sub" id="agent-sub"></div>
+
+  <div class="section">
+    <div class="sh"><div class="sh-title">HARDWARE</div><div class="sh-line"></div></div>
+    <table id="hw-table"><tbody></tbody></table>
+  </div>
+
+  <div class="section">
+    <div class="sh"><div class="sh-title">SKILLS</div><div class="sh-line"></div></div>
+    <div id="skills-content"></div>
+  </div>
+</div>
+<script>
+'use strict';
+function x(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const agentId = decodeURIComponent(window.location.pathname.split('/').pop());
+fetch('__BASE_URL__/api/agent/' + encodeURIComponent(agentId))
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(render)
+  .catch(() => { document.getElementById('agent-name').textContent = 'AGENT NOT FOUND'; });
+
+function render(d) {
+  document.title = (d.agent_name || agentId) + ' — AGENT DETAIL';
+  document.getElementById('agent-name').textContent = (d.agent_name || agentId).toUpperCase();
+  document.getElementById('agent-sub').textContent = agentId;
+
+  const geo = d.geo || {};
+  const hw = [
+    ['FQDN',     d.fqdn],
+    ['CPU',      d.cpu],
+    ['OS',       d.os ? (d.os + (d.arch ? '  ' + d.arch : '')) : null],
+    ['PYTHON',   d.python_version],
+    ['LOCATION', geo.city ? [geo.city, geo.country].filter(Boolean).join(', ') : null],
+    ['ORG',      geo.org],
+  ];
+  const tbody = document.querySelector('#hw-table tbody');
+  hw.forEach(([label, val]) => {
+    if (!val) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + x(label) + '</td><td>' + x(val) + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  renderSkills(d.agent_card);
+}
+
+function renderSkills(card) {
+  const el = document.getElementById('skills-content');
+  if (!card) { el.innerHTML = '<div class="no-data">NO AGENT CARD AVAILABLE</div>'; return; }
+
+  if (card.x_communicates_with && card.x_communicates_with.length) {
+    const tags = card.x_communicates_with.map(a => '<span class="comm-tag">' + x(a) + '</span>').join('');
+    el.innerHTML += '<div style="font-size:.64rem;letter-spacing:.2em;color:var(--dim)">COMMUNICATES WITH<div class="communicates">' + tags + '</div></div>';
+  }
+
+  const skills = card.skills || [];
+  if (!skills.length) { el.innerHTML += '<div class="no-data">NO SKILLS DEFINED</div>'; return; }
+
+  let t = '<table><thead><tr><th>NAME</th><th>TYPE</th><th>DESCRIPTION</th><th>PARAMETERS</th></tr></thead><tbody>';
+  skills.forEach(s => {
+    const tags = (s.tags || []).map(t => '<span class="tag">' + x(t) + '</span>').join('');
+    const params = Object.entries(s.x_parameters || {})
+      .map(([k, v]) => '<div class="param-block"><span class="param-name">' + x(k) + '</span> <span class="param-type">' + x(v) + '</span></div>')
+      .join('') || '<span style="opacity:.3">—</span>';
+    t += '<tr><td>' + x(s.name) + '</td><td>' + tags + '</td><td class="desc">' + x(s.description || '') + '</td><td>' + params + '</td></tr>';
+  });
+  t += '</tbody></table>';
+  el.innerHTML += t;
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn  = document.getElementById('theme-btn');
+  if (html.dataset.theme === 'light') {
+    delete html.dataset.theme;
+    btn.textContent = '◐';
+    localStorage.setItem('theme', 'dark');
+  } else {
+    html.dataset.theme = 'light';
+    btn.textContent = '◑';
+    localStorage.setItem('theme', 'light');
+  }
+}
+
+(function () {
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.dataset.theme = 'light';
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '◑';
+  }
+})();
+</script>
+</body>
+</html>"""
+
+
+def agent_detail_page(base_url: str = '') -> str:
+    """Return the agent detail page HTML with base_url substituted."""
+    return _DETAIL_HTML.replace('__BASE_URL__', base_url)
