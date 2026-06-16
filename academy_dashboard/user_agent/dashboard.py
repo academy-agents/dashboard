@@ -13,6 +13,7 @@ from enum import Enum
 from typing import Any
 
 from flask import Flask
+from flask import jsonify
 from flask import request
 from flask import Response
 from flask import send_from_directory
@@ -22,6 +23,7 @@ from academy_dashboard.user_agent.message import Registration
 from academy_dashboard.user_agent.message import Stats
 from academy_dashboard.user_agent.message import UserPrompt
 from academy_dashboard.user_agent.web_elements import _HTML
+from academy_dashboard.user_agent.web_elements import agent_detail_page
 
 _ASSETS_DIR = _os.path.join(_os.path.dirname(__file__), 'assets')
 
@@ -128,6 +130,7 @@ class Dashboard:
             'geo': geo,
             'org': org,
             'logo_url': logo_url,
+            'agent_card': reg.agent_card,
         }
         logger.info(
             'Registering %s[%s] from (%s)',
@@ -269,45 +272,68 @@ class Dashboard:
         finally:
             self._unsubscribe(q)
 
+    def _route_index(self) -> Response:
+        return Response(self._html, mimetype='text/html')
+
+    def _route_events(self) -> Response:
+        q = self._subscribe()
+        return Response(
+            self._event_stream(q),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'X-Accel-Buffering': 'no',
+                'Connection': 'keep-alive',
+            },
+        )
+
+    def _route_asset(self, filename: str) -> Response:
+        return send_from_directory(_ASSETS_DIR, filename)
+
+    def _route_dismiss(self, prompt_id: str) -> tuple[str, int]:
+        self.dismiss_prompt(prompt_id)
+        return ('', 204)
+
+    def _route_respond(self, prompt_id: str) -> tuple[str, int]:
+        data = request.get_json(force=True, silent=True) or {}
+        self.submit_response(prompt_id, data.get('response', ''))
+        return ('', 204)
+
+    def _route_shutdown(self, agent_id: str) -> tuple[str, int]:
+        if self._shutdown_callback is not None:
+            self._shutdown_callback(agent_id)
+        return ('', 204)
+
+    def _route_agent_detail(self, agent_id: str) -> Response:
+        return Response(agent_detail_page(self.base_url), mimetype='text/html')
+
+    def _route_api_agent(self, agent_id: str) -> Response:
+        with self._lock:
+            agent = dict(self._agents.get(agent_id, {}))
+        if not agent:
+            return jsonify({'error': 'not found'}), 404
+        return jsonify(agent)
+
     def _build_app(self) -> Flask:
         app = Flask(__name__)
-
-        @app.route('/')
-        def index() -> Response:
-            return Response(self._html, mimetype='text/html')
-
-        @app.route('/events')
-        def events() -> Response:
-            q = self._subscribe()
-            return Response(
-                self._event_stream(q),
-                mimetype='text/event-stream',
-                headers={
-                    'Cache-Control': 'no-cache',
-                    'X-Accel-Buffering': 'no',
-                    'Connection': 'keep-alive',
-                },
-            )
-
-        @app.route('/assets/<path:filename>')
-        def serve_asset(filename: str) -> Response:
-            return send_from_directory(_ASSETS_DIR, filename)
-
-        @app.route('/dismiss/<path:prompt_id>', methods=['POST'])
-        def dismiss(prompt_id: str) -> tuple[str, int]:
-            self.dismiss_prompt(prompt_id)
-            return ('', 204)
-
-        @app.route('/respond/<path:prompt_id>', methods=['POST'])
-        def respond(prompt_id: str) -> tuple[str, int]:
-            data = request.get_json(force=True, silent=True) or {}
-            self.submit_response(prompt_id, data.get('response', ''))
-            return ('', 204)
-
-        @app.route('/shutdown/<path:agent_id>', methods=['POST'])
-        def shutdown(agent_id: str) -> tuple[str, int]:
-            if self._shutdown_callback is not None:
-                self._shutdown_callback(agent_id)
-            return ('', 204)
-
+        app.add_url_rule('/', view_func=self._route_index)
+        app.add_url_rule('/events', view_func=self._route_events)
+        app.add_url_rule('/assets/<path:filename>', view_func=self._route_asset)
+        app.add_url_rule(
+            '/dismiss/<path:prompt_id>',
+            view_func=self._route_dismiss,
+            methods=['POST'],
+        )
+        app.add_url_rule(
+            '/respond/<path:prompt_id>',
+            view_func=self._route_respond,
+            methods=['POST'],
+        )
+        app.add_url_rule(
+            '/shutdown/<path:agent_id>',
+            view_func=self._route_shutdown,
+            methods=['POST'],
+        )
+        app.add_url_rule('/agent/<path:agent_id>', view_func=self._route_agent_detail)
+        app.add_url_rule('/api/agent/<path:agent_id>', view_func=self._route_api_agent)
         return app
