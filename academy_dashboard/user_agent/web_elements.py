@@ -685,7 +685,7 @@ function upsertCard(name, data) {
         <div class="agent-sub">${x(String(name).slice(0, 22))}</div>
       </div>
       <div style="display:flex;align-items:center">
-        <div class="badge"><div class="sdot"></div><span style="color:var(--green);font-size:.62rem;letter-spacing:.15em">ONLINE</span></div>
+        ${buildStatusBadge(d.status)}
         <button class="power-btn" onclick="event.stopPropagation();shutdownAgent('${x(name)}')" title="Shutdown agent">⏻</button>
       </div>
     </div>
@@ -1031,6 +1031,13 @@ es.addEventListener('registration', e => {
   upsertCard(d.agent, agents[d.agent]);
   _upsertMapMarker(d);
   _drawAllConnections();
+  eventN++; updateHud();
+});
+
+es.addEventListener('status', e => {
+  const d = JSON.parse(e.data);
+  Object.assign(agents[d.agent] || (agents[d.agent] = {}), d);
+  upsertCard(d.agent, agents[d.agent]);
   eventN++; updateHud();
 });
 
