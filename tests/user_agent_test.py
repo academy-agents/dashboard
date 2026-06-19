@@ -34,6 +34,8 @@ async def patched_user_agent(
 ) -> AsyncGenerator[tuple[UserAgent, mock.Mock], None]:
     """UserAgent fixture with Dashboard patched."""
     mock_dashboard = mock.Mock(spec=Dashboard)
+    mock_dashboard._agents = {}
+    mock_dashboard._prompts = []
     with patch(
         'academy_dashboard.user_agent.user_agent.Dashboard',
         return_value=mock_dashboard,
