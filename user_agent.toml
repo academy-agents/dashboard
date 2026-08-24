@@ -1,0 +1,17 @@
+[exchange]
+exchange_type = "http"
+request_timeout_s = 60.0
+
+[agent]
+constructor = "academy_dashboard.user_agent.user_agent.UserAgent"
+host = "0.0.0.0"
+port = 8000
+base_url = ""
+liveness_interval = 30
+
+[config]
+cancel_actions_on_shutdown = true
+raise_loop_errors_on_shutdown = true
+shutdown_on_loop_error = true
+terminate_on_error = false
+terminate_on_success = false
