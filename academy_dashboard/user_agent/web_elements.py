@@ -923,14 +923,13 @@ let _currentMapView = 'us';
 
 function _ensureMap() {
   if (_map) return;
-  const dark  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-  const light = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+  const tiles = 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=__CARTO_KEY__';
   const attr  = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
   const v = MAP_VIEWS[_currentMapView];
   _map = L.map('map', { zoomControl: true, attributionControl: true }).setView(v.center, v.zoom);
-  _darkTiles  = L.tileLayer(dark,  { attribution: attr, maxZoom: 19 });
-  _lightTiles = L.tileLayer(light, { attribution: attr, maxZoom: 19 });
+  _darkTiles  = L.tileLayer(tiles, { attribution: attr, maxZoom: 19 });
+  _lightTiles = L.tileLayer(tiles, { attribution: attr, maxZoom: 19 });
   const isLight = document.documentElement.dataset.theme === 'light';
   (isLight ? _lightTiles : _darkTiles).addTo(_map);
 }

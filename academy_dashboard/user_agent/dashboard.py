@@ -12,6 +12,8 @@ import time
 from enum import Enum
 from typing import Any
 
+from dotenv import find_dotenv
+from dotenv import load_dotenv
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -24,6 +26,8 @@ from academy_dashboard.user_agent.message import Stats
 from academy_dashboard.user_agent.message import UserPrompt
 from academy_dashboard.user_agent.web_elements import _HTML
 from academy_dashboard.user_agent.web_elements import agent_detail_page
+
+load_dotenv(find_dotenv('.env', usecwd=True))
 
 _ASSETS_DIR = _os.path.join(_os.path.dirname(__file__), 'assets')
 
@@ -64,7 +68,10 @@ class Dashboard:
         self._shutdown_callback: Any = None
         self._prompt_events: dict[str, threading.Event] = {}
         self._prompt_results: dict[str, str] = {}
-        self._html = _HTML.replace('__BASE_URL__', self.base_url)
+        self._html = _HTML.replace('__BASE_URL__', self.base_url).replace(
+            '__CARTO_KEY__',
+            _os.environ.get('CARTOCDN_API_KEY', ''),
+        )
         self._app = self._build_app()
 
     # ── public API ────────────────────────────────────────────────────────
