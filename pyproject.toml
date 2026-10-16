@@ -21,7 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "requests",
-    "academy-py>=0.5.0",
+    "academy-py>=1.0.0,<2.0.0",
     "dotenv",
     "globus-compute-sdk",
     "tox>=4.34.1",

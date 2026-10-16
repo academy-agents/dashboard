@@ -12,7 +12,7 @@ from typing import Any
 from academy.agent import action
 from academy.agent import Agent
 from academy.agent import loop
-from academy.exchange.transport import MailboxStatus
+from academy.exchange import MailboxStatus
 from academy.identifier import AgentId
 
 from academy_dashboard.user_agent.dashboard import AgentStatus
