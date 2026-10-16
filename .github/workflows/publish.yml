@@ -21,7 +21,7 @@
 #      will trigger this publish workflow that will publish the package
 #      to PyPI and push a new version of the docs.
 #
-#      * Go to https://github.com/academy-agents/nexus/releases
+#      * Go to https://github.com/academy-agents/dashboard/releases
 #      * Click "Draft a new release"
 #      * Select the tag you created
 #

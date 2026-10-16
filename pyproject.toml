@@ -182,4 +182,4 @@ convention = "google"
 namespaces = false
 
 [tool.setuptools.package-data]
-"academy_nexus.user_agent" = ["assets/*"]
+"academy_dashboard.user_agent" = ["assets/*"]
